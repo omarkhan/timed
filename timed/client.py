@@ -30,6 +30,23 @@ def summary(logfile, time_format):
   output(server.summarize(read(logfile, time_format, only_elapsed=True)))
 
 @cmdapp.cmd
+def daily(project, logfile, time_format):
+  "show daily breakdown for <project>"
+
+  def output(summary):
+    print '\n'.join([
+      "%s %s" % (p[0], colored(minutes_to_txt(p[1]), 'red')) for p in summary])
+
+  def format(record):
+    project, times = record
+    start, end = times
+    return start.date(), server.minutes_elapsed(start, end)
+
+  records = (format(record) for record in read(logfile, time_format)
+             if record[0] == project)
+  output(server.summarize(records))
+
+@cmdapp.cmd
 @cmdapp.default
 def status(logfile, time_format):
   "show current status"
