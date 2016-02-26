@@ -47,6 +47,12 @@ def daily(project, logfile, time_format):
   output(server.summarize(records))
 
 @cmdapp.cmd
+def total(logfile, time_format):
+  "show total time spent on all projects"
+  total = sum(elapsed for _, elapsed in read(logfile, time_format, only_elapsed=True))
+  print colored(minutes_to_txt(total), 'red')
+
+@cmdapp.cmd
 @cmdapp.default
 def status(logfile, time_format):
   "show current status"
