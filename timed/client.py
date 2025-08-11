@@ -75,8 +75,12 @@ def status(logfile, time_format):
 def start(project, logfile, time_format):
   "start tracking for <project>"
 
-  write(server.start(project, read(logfile, time_format)),
-    logfile, time_format)
+  records = read(logfile, time_format)
+  if records and not records[-1][1][1]:
+    print "error: there is a project already active"
+    return
+
+  write(server.start(project, records), logfile, time_format)
 
   print "starting work on %s" % colored(project, attrs=['bold'])
   print "  at %s" % colored(server.date_to_txt(now(), time_format), 'green')
@@ -118,10 +122,16 @@ def parse(logfile, time_format):
 
   output(server.summarize(records))
 
+@cmdapp.cmd
+def projects(logfile, time_format):
+  "prints a newline-separated list of all projects"
+
+  print '\n'.join(server.list_projects(read(logfile, time_format)))
+
 def read(logfile, time_format, only_elapsed=False):
   return [server.record_from_txt(line, only_elapsed=only_elapsed,
     time_format=time_format) for line in open(
-      os.path.expanduser(logfile)).readlines()]
+      os.path.expanduser(logfile) ,'a+').readlines()]
 
 def write(records, logfile, time_format):
   try:

@@ -7,6 +7,8 @@ def summarize(records):
     itertools.groupby(sorted(records, key=itemgetter(0)), itemgetter(0))]
 
 def start(project, records):
+  if records and not records[-1][1][1]:
+    return records
   return records + [(project, (datetime.datetime.now(), None))]
 
 def stop(records):
@@ -14,6 +16,10 @@ def stop(records):
     return records[:-1] + \
       [(lambda r: (r[0], (r[1][0], datetime.datetime.now())))(records[-1])]
   return records
+
+def list_projects(records):
+  return [r[0] for r in
+    itertools.groupby(sorted(records, key=itemgetter(0)), itemgetter(0))]
 
 def record_from_txt(line, only_elapsed=False, time_format='%H:%M on %d %b %Y'):
   try:
